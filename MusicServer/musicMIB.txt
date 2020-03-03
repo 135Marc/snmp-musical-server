@@ -1,0 +1,284 @@
+MUSICMIB DEFINITIONS ::= BEGIN
+
+--
+-- Example MIB objects for agent module example implementations
+--
+
+--
+-- Imports para aquilo que iremos utilizar na definição da MIB
+--
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Counter32, experimental,
+    NOTIFICATION-TYPE, Unsigned32                       FROM SNMPv2-SMI
+    SnmpAdminString                         FROM SNMP-FRAMEWORK-MIB
+    DateAndTime, DisplayString              FROM SNMPv2-TC
+;
+
+--
+-- DEFINITIONS
+--
+music MODULE-IDENTITY
+    LAST-UPDATED "201812121623Z" -- tem de ter REVISION com esta data!
+    ORGANIZATION "www.di.uminho.pt"
+    CONTACT-INFO    
+	 "postal:   Departamento de Informatica
+                Campus de Gualtar
+                4710-057 BRAGA
+                Portugal
+      email:    bruno.dias@di.uminho.pt"
+    DESCRIPTION
+	    "MIB objects for musical server"
+    REVISION     "201812121623Z"  -- tem de ser igual a LAST-UPDATE!
+    DESCRIPTION
+        "Versao final"
+    ::= { experimental 2020 }
+
+-- Tempo de atualizacao , em segundos , do repositorio musical
+musicRefreshPeriod OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+    "Periodo de atualizacao da colecao musical, em segundos."
+    ::= { music 1 }
+
+-- Ultima atualizacao do repositorio musical
+musicLastRefresh OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+    "Este valor indica quando foi realizada a ultima atualizacao da colecao musical."
+    ::= { music 2 } 
+
+-- Start of musicTable -- 
+musicTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MusicTableEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Tabela conceptual das musicas."
+    ::= { music 3 }
+
+-- Necessário definir o tipo, cada objeto deste tipo representa uma entrada na tabela
+MusicTableEntry ::= SEQUENCE {
+	musicID			Unsigned32,
+	musicName		DisplayString,
+	musicArtistID		Unsigned32,
+	musicAlbumID		Unsigned32,
+	musicYear		Unsigned32,
+	musicGenreID		Unsigned32,
+	musicTime		Unsigned32,
+	musicListenCount	Counter32
+}
+
+musicTableEntry OBJECT-TYPE
+    SYNTAX MusicTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+    "Representa uma entrada da tabela de musicas. A chave da tabela corresponde ao identificador da musica em questao."
+    INDEX { musicID }
+    ::= { musicTable 1 }
+
+-- Chave da tabela, meramente para fazer indexação
+musicID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Identificador da imagem (unico)"
+    ::= { musicTableEntry 1 }
+
+musicName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Nome da musica"
+    ::= { musicTableEntry 2 }
+
+musicArtistID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	" Identificador (unico) do artista."
+    ::= { musicTableEntry 3 }
+
+musicAlbumID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Identificador (unico) do album."
+    ::= { musicTableEntry 4 }
+
+-- Ano da música
+musicYear OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Ano em que a musica foi lancada."
+    ::= { musicTableEntry 5 }
+
+musicGenreID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	" Identificador (unico) do genero musical."
+    ::= { musicTableEntry 6 }
+
+musicTime OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Duracao, em segundos, da musica em questao."
+    ::= { musicTableEntry 7 }
+
+-- Número de reproduções da música
+musicListenCount OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Numero de vezes que uma musica foi tocada."
+    ::= { musicTableEntry 8 }
+
+--
+-- END of musicTable
+--
+
+-- Start of albumTable - 
+albumTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF AlbumTableEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Tabela conceptual dos albuns"
+    ::= { music 4 }
+
+AlbumTableEntry ::= SEQUENCE {
+	albumID		Unsigned32,
+	albumName	DisplayString
+}
+
+albumTableEntry OBJECT-TYPE
+    SYNTAX AlbumTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+    "Representa uma entrada da tabela de albuns. A chave da tabela corresponde ao identificador do album em questao."
+    INDEX { musicID }
+    ::= { albumTable 1 }
+
+albumID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Identificador unico de um album"
+    ::= { albumTableEntry 1 }
+
+-- Nome do album
+albumName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Nome do album"
+    ::= { albumTableEntry 2 }
+--
+-- END of albumTable
+--
+
+-- Start of genreTable - 
+genreTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF GenreTableEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Tabela conceptual dos generos musicais."
+    ::= { music 5 }
+
+GenreTableEntry ::= SEQUENCE {
+	genreID		Unsigned32,
+	genreName	DisplayString
+}
+
+genreTableEntry OBJECT-TYPE
+    SYNTAX GenreTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+    "Representa uma entrada da tabela de generos musicais. A chave da tabela corresponde ao identificador do genero em questao."
+    INDEX { musicID }
+    ::= { genreTable 1 }
+
+genreID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Identificador unico de um album"
+    ::= { genreTableEntry 1 }
+
+-- Nome do genero musical
+genreName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Nome do album"
+    ::= { genreTableEntry 2 }
+
+--
+-- END of genreTable
+--
+
+-- Start of artistTable - 
+artistTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ArtistTableEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Tabela conceptual dos artistas"
+    ::= { music 6 }
+
+ArtistTableEntry ::= SEQUENCE {
+	artistID	Unsigned32,
+	artistName	DisplayString
+}
+
+artistTableEntry OBJECT-TYPE
+    SYNTAX ArtistTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+    "Representa uma entrada da tabela dos artistas. A chave da tabela corresponde ao identificador do artista em questao."
+    INDEX { musicID }
+    ::= { artistTable 1 }
+
+artistID OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+	"Identificador unico de um artista."
+    ::= { artistTableEntry 1 }
+
+-- Nome do género musical
+artistName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+	"Nome do genero musical."
+    ::= { artistTableEntry 2 }
+--
+-- END of artistTable
+--
+END

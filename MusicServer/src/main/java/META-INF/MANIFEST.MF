@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: MainView
+Class-Path: /home/marcoriano135/IdeaProjects/GR-TP3/src/main/java/MainVi
+ ew.java
+
